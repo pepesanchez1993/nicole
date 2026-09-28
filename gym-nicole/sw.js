@@ -1,38 +1,19 @@
-/* Service worker de Gym Nicole — precache del shell + módulos para uso offline.
+/* Service worker de NICOLEGYM (antes JOSEGYM) — precache del shell (1 solo archivo) para uso offline.
    Estrategia: cache-first para lo precacheado; red con fallback a caché para el resto.
    Sube CACHE_VERSION al publicar cambios para invalidar la caché anterior. */
 
 const CACHE_PREFIX = 'gym-nicole-';
-const CACHE_VERSION = `${CACHE_PREFIX}v2`;
+const CACHE_VERSION = `${CACHE_PREFIX}v1`;
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './assets/css/styles.css',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/icon-maskable.png',
   './assets/icons/apple-touch-icon.png',
   './assets/icons/favicon-32.png',
-  './src/app.js',
-  './src/db.js',
-  './src/store.js',
-  './src/data/seed-machines.js',
-  './src/data/seed-plan12.js',
-  './src/lib/ui.js',
-  './src/lib/validate.js',
-  './src/lib/chart.js',
-  './src/lib/export.js',
-  './src/lib/metrics.js',
-  './src/lib/plate.js',
-  './src/lib/plate-ui.js',
-  './src/lib/timer.js',
-  './src/lib/image.js',
-  './src/views/routines.js',
-  './src/views/machines.js',
-  './src/views/plan.js',
-  './src/views/progress.js',
 ];
 
 self.addEventListener('install', (event) => {
