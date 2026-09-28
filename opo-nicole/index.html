@@ -39,6 +39,8 @@ button:active{transform:scale(.985)}
 .btn-main{background:var(--gold);color:#1a1710;border-color:var(--gold);font-weight:700;letter-spacing:.03em}
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btn-row button{flex:1 1 auto;min-width:120px}
+.btn-s{font-size:12.5px;padding:6px 10px;min-width:0}
+.btn-row.tight button{flex:0 0 auto;min-width:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .day{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
 .day:first-child{border-top:0}
@@ -46,16 +48,17 @@ button:active{transform:scale(.985)}
   background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;margin-top:1px}
 .day .chk.on{background:var(--green);border-color:var(--green);color:#fff}
 .day .dd{flex:0 0 20px;color:var(--muted);font-size:12px;letter-spacing:.06em;margin-top:5px}
-.day .tx{flex:1;font-size:14.5px}
+.day .tx{flex:1;font-size:14.5px;min-width:0}
 .day.today{background:rgba(184,137,59,.08);border-radius:8px;padding-left:6px;padding-right:6px}
 .wk{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--panel);overflow:hidden}
 .wk > .hd{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer}
 .wk > .hd .n{font-size:12px;color:var(--muted);letter-spacing:.06em;flex:0 0 auto}
-.wk > .hd .t{flex:1;font-size:14.5px}
+.wk > .hd .t{flex:1;font-size:14.5px;min-width:0}
 .wk > .bd{padding:0 12px 10px;display:none}
 .wk.open > .bd{display:block}
 .bar{height:7px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-top:5px}
-.bar > i{display:block;height:100%;background:var(--gold)}
+.bar > i{display:block;height:100%;background:var(--gold);transition:width .25s}
+.bar.lg{height:11px}
 .opt{display:block;width:100%;text-align:left;margin:7px 0;padding:11px 12px;font-size:15px;line-height:1.4}
 .opt.ok{background:rgba(46,139,87,.22);border-color:var(--green)}
 .opt.ko{background:rgba(192,57,43,.22);border-color:var(--red)}
@@ -68,7 +71,7 @@ nav button{flex:1;border:0;border-radius:0;background:none;padding:9px 2px 10px;
   letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 nav button .ic{display:block;font-size:19px;margin-bottom:1px}
 nav button.on{color:var(--gold)}
-select,input[type=date]{font-family:inherit;font-size:15px;color:var(--ink);background:var(--panel2);
+select,input[type=date],input[type=text]{font-family:inherit;font-size:15px;color:var(--ink);background:var(--panel2);
   border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 td{padding:5px 0;border-top:1px solid var(--line);vertical-align:middle}
@@ -80,6 +83,17 @@ td:last-child{width:64px;text-align:right;color:var(--muted);font-size:12px}
 .kv:first-child{border-top:0}
 .prog{position:sticky;top:0;background:var(--panel);border:1px solid var(--line);border-radius:12px;
   padding:9px 12px;margin-bottom:10px;font-size:13px;color:var(--muted);z-index:5}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+.chip{font-size:12px;letter-spacing:.05em;padding:6px 11px;border-radius:99px;background:var(--panel2);
+  border:1px solid var(--line);color:var(--muted);cursor:pointer;font-family:inherit}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#1a1710;font-weight:700}
+.pg{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.pg:first-child{border-top:0}
+.pg .nm{flex:1;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg .bw{flex:0 0 96px}
+.pg .pc{flex:0 0 46px;text-align:right;font-size:12.5px;color:var(--muted)}
+.mini{font-size:11.5px;color:var(--muted);letter-spacing:.03em}
+.hide{display:none !important}
 </style>
 </head>
 <body>
@@ -90,9 +104,9 @@ td:last-child{width:64px;text-align:right;color:var(--muted);font-size:12px}
 <main id="app"></main>
 <nav>
   <button data-v="hoy" class="on"><span class="ic">📅</span>Hoy</button>
-  <button data-v="plan"><span class="ic">🗺️</span>Plan</button>
+  <button data-v="ses"><span class="ic">🗺️</span>Sesiones</button>
   <button data-v="test"><span class="ic">✅</span>Test</button>
-  <button data-v="stats"><span class="ic">📊</span>Datos</button>
+  <button data-v="prog"><span class="ic">📊</span>Progreso</button>
   <button data-v="temario"><span class="ic">📚</span>Temario</button>
 </nav>
 <script src="data.js"></script>
@@ -101,8 +115,23 @@ td:last-child{width:64px;text-align:right;color:var(--muted);font-size:12px}
 "use strict";
 var D = window.ORL, KEY = "oponicole.orl.v1";
 var BN = {OTO:"Otología", LAR:"Laringe", RINO:"Rinología", FAR:"Faringe", GEN:"Parte general", REP:"Repaso"};
+var BORDER = ["LAR","RINO","OTO","FAR","GEN"];
+var BPESO = {OTO:"45 %", LAR:"27 %", RINO:"20 %", GEN:"15 preguntas", FAR:"7 %", REP:"repaso y simulacros"};
+var BLOQ = BORDER.concat(["REP"]);
 var DN = {L:"Lun", M:"Mar", X:"Mié", J:"Jue", V:"Vie", S:"Sáb"};
 var TT = {}; D.temario.forEach(function(t){ TT[t.id] = t; });
+
+/* ---------- catálogo de sesiones (sin fechas: orden libre) ---------- */
+var SES = [], SB = {}, TS = {};
+D.plan.forEach(function(w, wi){
+  w.d.forEach(function(x, i){
+    var s = {k:wi + "-" + i, w:wi, i:i, mod:w.n, b:w.b, tit:w.tit, t:x.t, q:x.q, x:x.x};
+    SES.push(s);
+    (SB[w.b] = SB[w.b] || []).push(s);
+    x.q.forEach(function(id){ (TS[id] = TS[id] || []).push(s); });
+  });
+});
+var NSES = SES.length;
 
 /* ---------- estado ---------- */
 var S;
@@ -113,32 +142,55 @@ function load(){
   if(!S.done) S.done = {};
   if(!S.qs) S.qs = {};
   if(!S.hist) S.hist = [];
+  if(!S.exam) S.exam = "";
 }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
-function mondayOf(d){
-  var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  var w = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - w);
-  return iso(x);
-}
 function iso(d){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 function parseISO(s){ var p = s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
 function today(){ var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
-function pos(){
-  var diff = Math.floor((today() - parseISO(S.start)) / 86400000);
-  if(diff < 0) return {w:0, dow:-1, pre:true};
-  var w = Math.floor(diff/7), dow = diff % 7;
-  return {w:w, dow:dow, pre:false};
+function addDays(d, n){ var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+function fdate(d){ return d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"}); }
+function sdate(d){ return d.toLocaleDateString("es-ES", {day:"numeric", month:"short", year:"numeric"}); }
+
+/* ---------- hechas ---------- */
+function isDone(k){ return !!S.done[k]; }
+function doneDate(k){ var v = S.done[k]; return (typeof v === "string") ? v : null; }
+function toggleDone(k){
+  if(S.done[k]) delete S.done[k]; else S.done[k] = iso(today());
+  save();
 }
-function dateOf(w, di){
-  var d = parseISO(S.start); d.setDate(d.getDate() + w*7 + di);
-  return d;
+function prog(list){
+  var d = 0;
+  list.forEach(function(s){ if(isDone(s.k)) d++; });
+  return {d:d, t:list.length, p: list.length ? d*100/list.length : 0};
 }
-function fdate(d){
-  return d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+function nextPend(list){
+  for(var i=0;i<list.length;i++){ if(!isDone(list[i].k)) return list[i]; }
+  return null;
 }
+function hechasHoy(){
+  var h = iso(today());
+  return SES.filter(function(s){ return doneDate(s.k) === h; });
+}
+function streak(){
+  var set = {};
+  Object.keys(S.done).forEach(function(k){ var v = S.done[k]; if(typeof v === "string") set[v] = 1; });
+  var n = 0, d = today();
+  if(!set[iso(d)]) d = addDays(d, -1);
+  while(set[iso(d)]){ n++; d = addDays(d, -1); }
+  return n;
+}
+function ritmo(){
+  var cut = addDays(today(), -27), n = 0, dated = 0;
+  Object.keys(S.done).forEach(function(k){
+    var v = S.done[k];
+    if(typeof v === "string"){ dated++; if(parseISO(v) >= cut) n++; }
+  });
+  return {n:n, sem: n*7/28, dated:dated};
+}
+function pctColor(p){ return p >= 60 ? "var(--green)" : p >= 30 ? "var(--gold)" : "var(--red)"; }
 
 /* ---------- preguntas ---------- */
 function qsFor(tags){
@@ -159,73 +211,53 @@ function stat(id){ return S.qs[id] || {ok:0, ko:0}; }
 function falladas(){
   return D.q.filter(function(q){ var s = stat(q.id); return s.ko > 0 && s.ko >= s.ok; });
 }
+function accum(sel){
+  var ok = 0, ko = 0, vistas = 0;
+  D.q.filter(sel).forEach(function(q){
+    var s = stat(q.id); ok += s.ok; ko += s.ko; if(s.ok || s.ko) vistas++;
+  });
+  return {ok:ok, ko:ko, v:vistas, t:D.q.filter(sel).length};
+}
 
 /* ---------- render helpers ---------- */
-var app = document.getElementById("app"), view = "hoy";
+var app = document.getElementById("app"), view = "hoy", openTema = null;
+var flt = {b:"", pend:false};
 function h(s){ return String(s).replace(/[&<>"]/g, function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
-function el(html){ var d = document.createElement("div"); d.innerHTML = html; return d.firstElementChild; }
-
+function bar(p, color, lg){
+  return '<div class="bar' + (lg ? " lg" : "") + '"><i style="width:' + p.toFixed(1) +
+    '%' + (color ? ";background:" + color : "") + '"></i></div>';
+}
+function pgRow(nombre, p, extra){
+  return '<div class="pg"><div class="nm">' + nombre + '</div>' +
+    '<div class="bw">' + bar(p.p, pctColor(p.p)) + '</div>' +
+    '<div class="pc">' + Math.round(p.p) + '%</div></div>' +
+    (extra ? '<div class="mini" style="margin:-4px 0 4px">' + extra + '</div>' : "");
+}
+function temaTags(q){
+  return q.map(function(id){ return '<span class="tag">' + h(id) + '</span>'; }).join(" ");
+}
+function sesRow(s, withMod){
+  var d = doneDate(s.k);
+  return '<div class="day" data-txt="' + h((s.t + " " + s.q.join(" ") + " " + s.tit + " M" + s.mod).toLowerCase()) + '">' +
+    '<div class="chk' + (isDone(s.k) ? " on" : "") + '" data-done="' + s.k + '">' + (isDone(s.k) ? "✓" : "") + '</div>' +
+    '<div class="tx">' +
+    (withMod ? '<span class="tag ' + s.b + '">M' + s.mod + '</span> ' : "") + temaTags(s.q) +
+    (s.x === "S" ? ' <span class="tag REP">Repaso</span>' : "") +
+    '<div style="margin-top:3px">' + h(s.t) + '</div>' +
+    (d ? '<div class="mini">Hecha el ' + h(sdate(parseISO(d))) + '</div>' : "") +
+    '<div class="btn-row tight"><button class="btn-s" data-go="dtest" data-tags="' + h(s.q.join(",")) +
+    '">Test de esta sesión</button></div></div></div>';
+}
 document.querySelectorAll("nav button").forEach(function(b){
   b.onclick = function(){
     document.querySelectorAll("nav button").forEach(function(x){ x.classList.remove("on"); });
-    b.classList.add("on"); view = b.dataset.v; test = null; render();
+    b.classList.add("on"); view = b.dataset.v; test = null; openTema = null; render();
   };
 });
-
-/* ---------- vista HOY ---------- */
-function vHoy(){
-  var p = pos(), out = "";
-  if(p.pre){
-    out += '<div class="card"><h2>Aún no ha empezado</h2><p class="muted">El plan arranca el ' +
-      h(fdate(parseISO(S.start))) + '. Puedes cambiar la fecha de inicio en Datos.</p></div>';
-    app.innerHTML = out; return;
-  }
-  if(p.w >= D.plan.length){
-    out += '<div class="card"><h2>Plan completado</h2><p class="muted">Has recorrido las 26 semanas. ' +
-      'Sigue con simulacros y repaso de falladas.</p>' +
-      '<div class="btn-row"><button class="btn-main" data-go="fall">Repasar falladas</button>' +
-      '<button data-go="sim">Simulacro aleatorio</button></div></div>';
-    app.innerHTML = out; bindGo(); return;
-  }
-  var wk = D.plan[p.w];
-  if(p.dow === 6){
-    out += '<div class="card"><h2>Día libre · descanso</h2>' +
-      '<p class="muted">Día libre por diseño del plan. Si quieres algo ligero, 10 preguntas de repaso y nada más.</p>' +
-      '<div class="btn-row"><button data-go="fall">Repaso de falladas</button></div></div>';
-  } else {
-    var dd = wk.d[p.dow], key = p.w + "-" + p.dow, done = !!S.done[key];
-    out += '<div class="card"><h2>' + h(fdate(today())) + '</h2>' +
-      '<p class="muted">Semana ' + wk.n + ' de 26 · <span class="tag ' + wk.b + '">' + h(BN[wk.b]) + '</span> · ' + h(wk.tit) + '</p>' +
-      '<h3>Sesión de hoy (1-2 h)</h3><p style="font-size:16px;margin:0 0 4px">' + h(dd.t) + '</p>' +
-      '<div class="btn-row">' +
-      '<button class="btn-main" data-go="dtest" data-tags="' + h(dd.q.join(",")) + '">Test de hoy (15 preguntas)</button>' +
-      '<button data-done="' + key + '">' + (done ? "✓ Hecho" : "Marcar hecho") + '</button></div></div>';
-    out += '<div class="card"><h2>Resto de la semana</h2>';
-    wk.d.forEach(function(x, i){
-      var k = p.w + "-" + i;
-      out += '<div class="day' + (i === p.dow ? " today" : "") + '">' +
-        '<div class="chk' + (S.done[k] ? " on" : "") + '" data-done="' + k + '">' + (S.done[k] ? "✓" : "") + '</div>' +
-        '<div class="dd">' + DN[x.x] + '</div><div class="tx">' + h(x.t) + '</div></div>';
-    });
-    out += '<div class="day"><div class="chk" style="opacity:.35"></div><div class="dd">Libre</div>' +
-      '<div class="tx muted">Descanso</div></div></div>';
-  }
-  var tot = 0, dn = 0;
-  D.plan.forEach(function(w, wi){ w.d.forEach(function(x, i){ tot++; if(S.done[wi + "-" + i]) dn++; }); });
-  out += '<div class="card"><h2>Avance del plan</h2>' +
-    '<div class="kv"><span>Sesiones completadas</span><b>' + dn + " / " + tot + '</b></div>' +
-    '<div class="bar"><i style="width:' + (tot ? (dn*100/tot).toFixed(1) : 0) + '%"></i></div></div>';
-  app.innerHTML = out;
-  bindDone(); bindGo();
-}
 function bindDone(){
   app.querySelectorAll("[data-done]").forEach(function(b){
-    b.onclick = function(){
-      var k = b.dataset.done;
-      if(S.done[k]) delete S.done[k]; else S.done[k] = 1;
-      save(); render();
-    };
+    b.onclick = function(){ toggleDone(b.dataset.done); render(); };
   });
 }
 function bindGo(){
@@ -236,69 +268,221 @@ function bindGo(){
       else if(g === "sim"){ startTest(simAleatorio(), "Simulacro aleatorio (110)"); }
       else if(g === "dtest"){
         var tags = b.dataset.tags.split(",");
-        startTest(shuffle(qsFor(tags)).slice(0,15), "Test de la sesión");
+        startTest(shuffle(qsFor(tags)).slice(0,15), b.dataset.nom || "Test de la sesión");
       }
+      else if(g === "view"){ goView(b.dataset.arg); }
+      else if(g === "tema"){ openTema = b.dataset.arg; goView("temario"); }
     };
   });
 }
+function goView(v){
+  view = v; test = null;
+  document.querySelectorAll("nav button").forEach(function(x){
+    x.classList.toggle("on", x.dataset.v === v);
+  });
+  render();
+}
 
-/* ---------- vista PLAN ---------- */
-function vPlan(){
-  var p = pos(), out = "";
-  out += '<div class="card"><h2>Plan de 26 semanas</h2><p class="muted">' +
-    'Seis días de estudio y uno libre por semana. Laringe y rinología abren por revisión más reciente; ' +
-    'la otología va justo después, con el mismo nivel de exigencia — es el bloque que más se pregunta (45 %) y no un simple repaso — ' +
-    'faringe cierra las específicas y la parte general queda para el final.</p>' +
-    '<div class="kv"><span>Laringe · 27 % del examen</span><b>Semanas 1-6</b></div>' +
-    '<div class="kv"><span>Rinología · 20 %</span><b>Semanas 7-10</b></div>' +
-    '<div class="kv"><span>Otología · 45 %</span><b>Semanas 11-19</b></div>' +
-    '<div class="kv"><span>Faringe · 7 %</span><b>Semanas 20-21</b></div>' +
-    '<div class="kv"><span>Parte general · 15 preguntas</span><b>Semanas 22-24</b></div>' +
-    '<div class="kv"><span>Repaso y simulacros</span><b>Semanas 25-26</b></div></div>';
-  D.plan.forEach(function(w, wi){
-    var dn = 0; w.d.forEach(function(x, i){ if(S.done[wi + "-" + i]) dn++; });
-    var open = (wi === p.w);
-    out += '<div class="wk' + (open ? " open" : "") + '" data-wk="' + wi + '">' +
-      '<div class="hd"><span class="n">S' + w.n + '</span><span class="t">' + h(w.tit) + '</span>' +
-      '<span class="tag ' + w.b + '">' + h(BN[w.b]) + '</span><span class="n">' + dn + '/6</span></div>' +
-      '<div class="bd">' +
-      '<p class="muted" style="margin:2px 0 8px">Del ' + h(fdate(dateOf(wi,0))) + ' al ' + h(fdate(dateOf(wi,5))) + '</p>';
-    w.d.forEach(function(x, i){
-      var k = wi + "-" + i;
-      out += '<div class="day"><div class="chk' + (S.done[k] ? " on" : "") + '" data-done="' + k + '">' +
-        (S.done[k] ? "✓" : "") + '</div><div class="dd">' + DN[x.x] + '</div>' +
-        '<div class="tx">' + h(x.t) +
-        '<div class="btn-row"><button data-go="dtest" data-tags="' + h(x.q.join(",")) +
-        '" style="font-size:12.5px;padding:6px 10px;min-width:0">Test de este día</button></div></div></div>';
+/* ---------- vista HOY ---------- */
+function vHoy(){
+  var g = prog(SES), hoy = hechasHoy(), st = streak(), r = ritmo(), out = "";
+
+  out += '<div class="card"><h2>' + h(fdate(today())) + '</h2>' +
+    '<p class="muted" style="margin:0">Elige lo que quieras estudiar hoy. No hay orden obligatorio: ' +
+    'puedes saltar de bloque, dejar un tema a medias y retomarlo otro día.</p>' +
+    '<div class="kv" style="margin-top:10px"><span>Sesiones hechas hoy</span><b>' + hoy.length + '</b></div>' +
+    '<div class="kv"><span>Días seguidos estudiando</span><b>' + st + '</b></div>' +
+    '<div class="kv"><span>Ritmo (últimas 4 semanas)</span><b>' + (r.dated ? r.sem.toFixed(1) + " sesiones/semana" : "—") + '</b></div></div>';
+
+  var np = nextPend(SES);
+  if(np){
+    out += '<div class="card"><h2>Seguir donde lo dejaste</h2>' +
+      '<p class="muted" style="margin:0 0 6px">Sugerencia, no obligación · <span class="tag ' + np.b + '">' + h(BN[np.b]) +
+      '</span> <span class="tag">Módulo ' + np.mod + '</span></p>' +
+      '<p style="font-size:16px;margin:0">' + h(np.t) + '</p>' +
+      '<div class="btn-row"><button class="btn-main" data-go="dtest" data-tags="' + h(np.q.join(",")) + '">Test de esta sesión</button>' +
+      '<button data-done="' + np.k + '">Marcar hecha</button>' +
+      '<button data-go="view" data-arg="ses">Elegir otra</button></div></div>';
+  } else {
+    out += '<div class="card"><h2>Temario completo</h2><p class="muted">Has marcado las ' + NSES +
+      ' sesiones. Ahora toca simulacros y falladas.</p>' +
+      '<div class="btn-row"><button class="btn-main" data-go="sim">Simulacro (110)</button>' +
+      '<button data-go="fall">Falladas</button></div></div>';
+  }
+
+  out += '<div class="card"><h2>Alternar bloque</h2>' +
+    '<p class="muted" style="margin:0 0 4px">Lo siguiente pendiente de cada bloque, para ir mezclando.</p>';
+  BLOQ.forEach(function(b){
+    var p = prog(SB[b] || []), n = nextPend(SB[b] || []);
+    out += '<div class="day"><div class="tx">' +
+      '<span class="tag ' + b + '">' + h(BN[b]) + '</span> <span class="mini">' + p.d + "/" + p.t + ' · ' + Math.round(p.p) + '%</span>' +
+      bar(p.p, pctColor(p.p)) +
+      (n ? '<div style="margin-top:6px;font-size:14px">' + h(n.t) + '</div>' +
+           '<div class="btn-row tight"><button class="btn-s btn-main" data-go="dtest" data-tags="' + h(n.q.join(",")) + '">Test</button>' +
+           '<button class="btn-s" data-done="' + n.k + '">Marcar hecha</button></div>'
+         : '<div class="mini" style="margin-top:6px">Bloque terminado ✓</div>') +
+      '</div></div>';
+  });
+  out += '</div>';
+
+  out += '<div class="card"><h2>Ir a un tema concreto</h2>' +
+    '<select id="jt"><option value="">Elige un tema del temario…</option>';
+  BORDER.forEach(function(b){
+    out += '<optgroup label="' + h(BN[b]) + '">';
+    D.temario.filter(function(t){ return t.b === b; }).forEach(function(t){
+      var p = prog(TS[t.id] || []);
+      out += '<option value="' + t.id + '">' + h(t.id + " · " + t.t.slice(0,58)) + " (" + Math.round(p.p) + "%)" + '</option>';
     });
+    out += '</optgroup>';
+  });
+  out += '</select><div class="btn-row"><button id="jtGo">Abrir el tema</button>' +
+    '<button data-go="view" data-arg="temario">Ver todo el temario</button></div></div>';
+
+  out += '<div class="card"><h2>Progreso del temario</h2>' +
+    '<p class="big" style="margin:4px 0">' + Math.round(g.p) + '%</p>' + bar(g.p, "var(--gold)", true) +
+    '<div class="kv" style="margin-top:8px"><span>Sesiones marcadas</span><b>' + g.d + " / " + g.t + '</b></div>' +
+    '<div class="btn-row"><button data-go="view" data-arg="prog">Ver estimación y detalle</button></div></div>';
+
+  if(hoy.length){
+    out += '<div class="card"><h2>Hecho hoy</h2>';
+    hoy.forEach(function(s){ out += sesRow(s, true); });
+    out += '</div>';
+  }
+  app.innerHTML = out;
+  var jt = document.getElementById("jt");
+  document.getElementById("jtGo").onclick = function(){
+    if(jt.value){ openTema = jt.value; goView("temario"); }
+  };
+  bindDone(); bindGo();
+}
+
+/* ---------- vista SESIONES (catálogo libre) ---------- */
+function vSes(){
+  var g = prog(SES), out = "";
+  out += '<div class="card"><h2>Todas las sesiones</h2>' +
+    '<p class="muted" style="margin:0">' + NSES + ' sesiones agrupadas en ' + D.plan.length +
+    ' módulos temáticos. El orden de los módulos es solo una sugerencia (laringe y rinología primero por ser lo ' +
+    'más reciente, otología después por ser el 45 % del examen): puedes hacerlos en el orden que quieras, ' +
+    'alternarlos o dejar uno a medias.</p>' +
+    '<div class="kv" style="margin-top:10px"><span>Hechas</span><b>' + g.d + " / " + g.t + ' · ' + Math.round(g.p) + '%</b></div>' +
+    bar(g.p, "var(--gold)", true) +
+    '<h3>Filtrar</h3><div class="chips">' +
+    '<button class="chip' + (flt.b === "" ? " on" : "") + '" data-flt="">Todos</button>';
+  BLOQ.forEach(function(b){
+    var p = prog(SB[b] || []);
+    out += '<button class="chip' + (flt.b === b ? " on" : "") + '" data-flt="' + b + '">' +
+      h(BN[b]) + ' ' + Math.round(p.p) + '%</button>';
+  });
+  out += '</div><div class="chips">' +
+    '<button class="chip' + (flt.pend ? " on" : "") + '" data-pend="1">Solo pendientes</button></div>' +
+    '<div style="margin-top:8px"><input type="text" id="q" placeholder="Buscar: colesteatoma, T21, vértigo…"></div></div>';
+
+  var vistos = 0;
+  D.plan.forEach(function(w, wi){
+    if(flt.b && w.b !== flt.b) return;
+    var list = SES.filter(function(s){ return s.w === wi; });
+    var shown = flt.pend ? list.filter(function(s){ return !isDone(s.k); }) : list;
+    if(!shown.length) return;
+    vistos++;
+    var p = prog(list);
+    out += '<div class="wk" data-wk="' + wi + '">' +
+      '<div class="hd"><span class="n">M' + w.n + '</span><span class="t">' + h(w.tit) + '</span>' +
+      '<span class="tag ' + w.b + '">' + h(BN[w.b]) + '</span>' +
+      '<span class="n">' + p.d + '/' + p.t + '</span></div>' +
+      '<div class="bd">' + bar(p.p, pctColor(p.p)) +
+      '<div class="btn-row tight" style="margin-bottom:4px">' +
+      '<button class="btn-s" data-go="dtest" data-tags="' + h(uniqTemas(list).join(",")) +
+      '" data-nom="Módulo ' + w.n + ' · ' + h(w.tit) + '">Test de todo el módulo</button>' +
+      '<button class="btn-s" data-mod="' + wi + '">' + (p.d === p.t ? "Desmarcar módulo" : "Marcar módulo entero") + '</button></div>';
+    shown.forEach(function(s){ out += sesRow(s, false); });
     out += '</div></div>';
   });
+  if(!vistos) out += '<div class="card"><p class="muted" style="margin:0">Nada pendiente con ese filtro.</p></div>';
+
   app.innerHTML = out;
   app.querySelectorAll(".wk > .hd").forEach(function(hd){
     hd.onclick = function(){ hd.parentNode.classList.toggle("open"); };
   });
+  app.querySelectorAll("[data-flt]").forEach(function(b){
+    b.onclick = function(){ flt.b = b.dataset.flt; render(); };
+  });
+  app.querySelectorAll("[data-pend]").forEach(function(b){
+    b.onclick = function(){ flt.pend = !flt.pend; render(); };
+  });
+  app.querySelectorAll("[data-mod]").forEach(function(b){
+    b.onclick = function(){
+      var wi = +b.dataset.mod, list = SES.filter(function(s){ return s.w === wi; });
+      var todas = list.every(function(s){ return isDone(s.k); }), hoyIso = iso(today());
+      list.forEach(function(s){ if(todas) delete S.done[s.k]; else S.done[s.k] = S.done[s.k] || hoyIso; });
+      save(); render();
+    };
+  });
+  var inp = document.getElementById("q");
+  inp.oninput = function(){
+    var v = inp.value.trim().toLowerCase();
+    app.querySelectorAll(".wk").forEach(function(wk){
+      var any = false;
+      wk.querySelectorAll("[data-txt]").forEach(function(r){
+        var m = !v || r.dataset.txt.indexOf(v) >= 0;
+        r.classList.toggle("hide", !m);
+        if(m) any = true;
+      });
+      wk.classList.toggle("hide", !any);
+      if(v && any) wk.classList.add("open");
+    });
+  };
   bindDone(); bindGo();
+}
+function uniqTemas(list){
+  var set = {}, res = [];
+  list.forEach(function(s){ s.q.forEach(function(id){ if(!set[id]){ set[id] = 1; res.push(id); } }); });
+  return res;
 }
 
 /* ---------- vista TEMARIO ---------- */
 function vTemario(){
   var out = '<div class="card"><h2>Temario oficial</h2>' +
     '<p class="muted">Anexo I de la Orden SAN/62/2022 (BOC nº 7, 11-I-2023), categoría FEA de Otorrinolaringología. ' +
-    'El número entre paréntesis son las preguntas disponibles de cada tema en esta app.</p></div>';
-  ["GEN","OTO","RINO","FAR","LAR"].forEach(function(b){
-    out += '<div class="card"><h2>' + h(BN[b]) + '</h2>';
-    D.temario.filter(function(t){ return t.b === b; }).forEach(function(t){
-      var n = D.q.filter(function(q){ return q.t === t.id; }).length;
+    'Cada tema lleva su propio porcentaje: sesiones marcadas sobre las que lo cubren. Ábrelo y estudia el que ' +
+    'quieras, cuando quieras.</p></div>';
+  BORDER.forEach(function(b){
+    var lista = D.temario.filter(function(t){ return t.b === b; });
+    var sesB = prog(SB[b] || []);
+    out += '<div class="card"><h2>' + h(BN[b]) + ' <span class="mini">· ' + h(BPESO[b] || "") + '</span></h2>' +
+      '<div class="kv"><span>Avance del bloque</span><b>' + sesB.d + " / " + sesB.t + ' sesiones · ' + Math.round(sesB.p) + '%</b></div>' +
+      bar(sesB.p, pctColor(sesB.p), true) + '<div style="height:8px"></div>';
+    lista.forEach(function(t){
+      var ses = TS[t.id] || [], p = prog(ses);
+      var a = accum(function(q){ return q.t === t.id; });
+      var acc = (a.ok + a.ko) ? Math.round(a.ok*100/(a.ok+a.ko)) : null;
+      var nq = D.q.filter(function(q){ return q.t === t.id; }).length;
       var ofi = D.q.filter(function(q){ return q.t === t.id && q.s === "ope22"; }).length;
-      out += '<div class="day"><div class="dd" style="flex:0 0 40px">' + h(t.id) + '</div>' +
-        '<div class="tx">' + h(t.t) +
-        '<div class="muted" style="font-size:12px">' + n + ' preguntas · ' + ofi + ' del examen de 2022' +
-        '</div><div class="btn-row"><button data-go="dtest" data-tags="' + h(t.id) +
-        '" style="font-size:12.5px;padding:6px 10px;min-width:0">Test del tema</button></div></div></div>';
+      var op = (openTema === t.id);
+      out += '<div class="wk' + (op ? " open" : "") + '" data-tema="' + t.id + '">' +
+        '<div class="hd"><span class="n">' + h(t.id) + '</span><span class="t">' + h(t.t) + '</span>' +
+        '<span class="n">' + Math.round(p.p) + '%</span></div>' +
+        '<div class="bd">' + bar(p.p, pctColor(p.p)) +
+        '<p class="mini" style="margin:6px 0 2px">' + p.d + " de " + p.t + ' sesiones hechas · ' + nq +
+        ' preguntas (' + ofi + ' del examen de 2022)' + (acc === null ? "" : ' · acierto ' + acc + '%') + '</p>' +
+        '<div class="btn-row tight"><button class="btn-s btn-main" data-go="dtest" data-tags="' + h(t.id) +
+        '" data-nom="' + h(t.id + " · " + t.t.slice(0,40)) + '">Test del tema</button></div>';
+      ses.forEach(function(s){ out += sesRow(s, true); });
+      if(!ses.length) out += '<p class="mini">Sin sesiones asignadas; practica con el test del tema.</p>';
+      out += '</div></div>';
     });
     out += '</div>';
   });
-  app.innerHTML = out; bindGo();
+  app.innerHTML = out;
+  app.querySelectorAll(".wk > .hd").forEach(function(hd){
+    hd.onclick = function(){ hd.parentNode.classList.toggle("open"); };
+  });
+  bindDone(); bindGo();
+  if(openTema){
+    var n = app.querySelector('[data-tema="' + openTema + '"]');
+    if(n) n.scrollIntoView({block:"center"});
+    openTema = null;
+    return;
+  }
 }
 
 /* ---------- vista TEST ---------- */
@@ -426,42 +610,85 @@ function endTest(){
   window.scrollTo(0,0);
 }
 
-/* ---------- vista STATS ---------- */
-function accum(sel){
-  var ok = 0, ko = 0, vistas = 0;
-  D.q.filter(sel).forEach(function(q){
-    var s = stat(q.id); ok += s.ok; ko += s.ko; if(s.ok || s.ko) vistas++;
-  });
-  return {ok:ok, ko:ko, v:vistas, t:D.q.filter(sel).length};
-}
-function vStats(){
-  var g = accum(function(){ return true; });
-  var out = '<div class="card"><h2>Rendimiento global</h2>' +
-    '<p class="big" style="margin:4px 0">' + (g.ok + g.ko ? Math.round(g.ok*100/(g.ok+g.ko)) : 0) + '%</p>' +
-    '<div class="kv"><span>Respuestas acertadas</span><b>' + g.ok + '</b></div>' +
-    '<div class="kv"><span>Respuestas falladas</span><b>' + g.ko + '</b></div>' +
-    '<div class="kv"><span>Preguntas ya vistas</span><b>' + g.v + " / " + g.t + '</b></div>' +
-    '<div class="kv"><span>Pendientes de repaso</span><b>' + falladas().length + '</b></div></div>';
+/* ---------- vista PROGRESO ---------- */
+function vProg(){
+  var g = prog(SES), r = ritmo(), rest = g.t - g.d, out = "";
 
-  out += '<div class="card"><h2>Por bloque</h2><table>';
-  ["OTO","LAR","RINO","FAR","GEN"].forEach(function(b){
-    var a = accum(function(q){ return q.b === b; }), p = a.ok+a.ko ? Math.round(a.ok*100/(a.ok+a.ko)) : 0;
-    out += '<tr><td>' + h(BN[b]) + '</td><td><div class="bar"><i style="width:' + p +
-      '%;background:' + (p >= 60 ? "var(--green)" : p >= 40 ? "var(--gold)" : "var(--red)") + '"></i></div></td>' +
-      '<td>' + (a.ok+a.ko ? p + "%" : "—") + '</td></tr>';
-  });
-  out += '</table></div>';
+  out += '<div class="card"><h2>Temario completado</h2>' +
+    '<p class="big" style="margin:4px 0">' + Math.round(g.p) + '%</p>' + bar(g.p, "var(--gold)", true) +
+    '<div class="kv" style="margin-top:8px"><span>Sesiones hechas</span><b>' + g.d + " / " + g.t + '</b></div>' +
+    '<div class="kv"><span>Pendientes</span><b>' + rest + '</b></div>' +
+    '<div class="kv"><span>Días seguidos</span><b>' + streak() + '</b></div></div>';
 
-  out += '<div class="card"><h2>Por tema</h2><table>';
-  D.temario.forEach(function(t){
-    var a = accum(function(q){ return q.t === t.id; });
-    if(!(a.ok + a.ko)) return;
-    var p = Math.round(a.ok*100/(a.ok+a.ko));
-    out += '<tr><td>' + h(t.id) + '</td><td><div class="bar"><i style="width:' + p +
-      '%;background:' + (p >= 60 ? "var(--green)" : p >= 40 ? "var(--gold)" : "var(--red)") + '"></i></div></td>' +
-      '<td>' + p + '%</td></tr>';
+  out += '<div class="card"><h2>Estimación</h2>';
+  if(!r.dated){
+    out += '<p class="muted" style="margin:0">Marca algunas sesiones como hechas y aquí aparecerá tu ritmo real ' +
+      'y la fecha estimada de terminar el temario.</p>';
+  } else if(r.sem < 0.5){
+    out += '<p class="muted" style="margin:0">En las últimas 4 semanas has hecho ' + r.n + ' sesiones: ' +
+      'demasiado poco para estimar una fecha. Con 6 sesiones por semana el temario sale en ' +
+      Math.ceil(rest/6) + ' semanas.</p>';
+  } else {
+    var sem = rest / r.sem, fin = addDays(today(), Math.ceil(sem*7));
+    out += '<div class="kv"><span>Ritmo real (4 últimas semanas)</span><b>' + r.sem.toFixed(1) + ' ses./sem.</b></div>' +
+      '<div class="kv"><span>A este ritmo terminas en</span><b>' + Math.ceil(sem) + ' semanas</b></div>' +
+      '<div class="kv"><span>Fecha estimada de fin</span><b>' + h(sdate(fin)) + '</b></div>';
+  }
+  if(S.exam){
+    var dx = Math.round((parseISO(S.exam) - today()) / 86400000);
+    if(dx > 0){
+      var semx = dx/7, need = rest/semx;
+      out += '<div class="kv"><span>Días hasta el examen</span><b>' + dx + '</b></div>' +
+        '<div class="kv"><span>Ritmo necesario</span><b>' + need.toFixed(1) + ' ses./sem.</b></div>';
+      var okp = (r.sem >= need);
+      out += '<div class="warn" style="border-style:solid;border-color:' + (okp ? "var(--green)" : "var(--red)") + '">' +
+        (r.dated && r.sem >= 0.5
+          ? (okp ? "Vas sobrada: tu ritmo actual (" + r.sem.toFixed(1) + ") cubre el necesario (" + need.toFixed(1) + ")."
+                 : "Vas justa: necesitas " + need.toFixed(1) + " sesiones por semana y llevas " + r.sem.toFixed(1) + ".")
+          : "Con " + need.toFixed(1) + " sesiones por semana llegas al examen con el temario terminado.") +
+        '</div>';
+    } else {
+      out += '<div class="kv"><span>Fecha del examen</span><b>' + h(sdate(parseISO(S.exam))) + '</b></div>';
+    }
+  } else {
+    out += '<p class="muted" style="margin:8px 0 0">Pon la fecha del examen en Ajustes y calculo el ritmo que necesitas.</p>';
+  }
+  out += '</div>';
+
+  out += '<div class="card"><h2>Por bloque</h2>';
+  BLOQ.forEach(function(b){
+    var p = prog(SB[b] || []), a = accum(function(q){ return q.b === b; });
+    var acc = (a.ok + a.ko) ? Math.round(a.ok*100/(a.ok+a.ko)) : null;
+    out += pgRow('<span class="tag ' + b + '">' + h(BN[b]) + '</span>', p,
+      p.d + "/" + p.t + " sesiones · peso " + (BPESO[b] || "—") +
+      (acc === null ? " · sin test aún" : " · acierto " + acc + "%"));
   });
-  out += '</table><p class="muted" style="margin-top:8px">Solo aparecen los temas que ya has practicado.</p></div>';
+  out += '</div>';
+
+  out += '<div class="card"><h2>Por tema del temario</h2><p class="muted" style="margin:0 0 6px">' +
+    'Porcentaje = sesiones hechas de ese tema. Aparecen los 52 temas, estudiados o no.</p>';
+  BORDER.forEach(function(b){
+    out += '<h3>' + h(BN[b]) + '</h3>';
+    D.temario.filter(function(t){ return t.b === b; }).forEach(function(t){
+      var p = prog(TS[t.id] || []);
+      var a = accum(function(q){ return q.t === t.id; });
+      var acc = (a.ok + a.ko) ? Math.round(a.ok*100/(a.ok+a.ko)) : null;
+      out += '<div class="pg"><div class="nm"><b class="mini">' + h(t.id) + '</b> ' + h(t.t.slice(0,48)) +
+        (acc === null ? "" : ' <span class="mini">(' + acc + '% acierto)</span>') + '</div>' +
+        '<div class="bw">' + bar(p.p, pctColor(p.p)) + '</div>' +
+        '<div class="pc">' + Math.round(p.p) + '%</div></div>';
+    });
+  });
+  out += '</div>';
+
+  var gq = accum(function(){ return true; });
+  out += '<div class="card"><h2>Rendimiento en test</h2>' +
+    '<p class="big" style="margin:4px 0">' + (gq.ok + gq.ko ? Math.round(gq.ok*100/(gq.ok+gq.ko)) : 0) + '%</p>' +
+    '<div class="kv"><span>Acertadas</span><b>' + gq.ok + '</b></div>' +
+    '<div class="kv"><span>Falladas</span><b>' + gq.ko + '</b></div>' +
+    '<div class="kv"><span>Preguntas ya vistas</span><b>' + gq.v + " / " + gq.t + '</b></div>' +
+    '<div class="kv"><span>Pendientes de repaso</span><b>' + falladas().length + '</b></div>' +
+    '<div class="btn-row"><button data-go="fall">Repasar falladas</button></div></div>';
 
   if(S.hist.length){
     out += '<div class="card"><h2>Últimos tests</h2>';
@@ -473,42 +700,48 @@ function vStats(){
   }
 
   out += '<div class="card"><h2>Ajustes</h2>' +
-    '<h3>Fecha de inicio del plan</h3><p class="muted" style="margin-top:0">Puedes elegir cualquier día — no hace falta que sea lunes. ' +
-    'Ese día será tu "día 1" (Tema 1) y a partir de ahí el plan sigue su ciclo de 6 días de estudio + 1 libre.</p>' +
+    '<h3>Fecha del examen (opcional)</h3><p class="muted" style="margin-top:0">Solo se usa para calcular el ritmo ' +
+    'necesario. No bloquea ni reordena nada.</p>' +
+    '<input type="date" id="ex" value="' + h(S.exam) + '">' +
+    '<div class="btn-row"><button id="setEx">Guardar</button><button id="clrEx">Quitar fecha</button></div>' +
+    '<h3>Primer día de estudio</h3><p class="muted" style="margin-top:0">Informativo, para el histórico.</p>' +
     '<input type="date" id="st" value="' + S.start + '">' +
-    '<div class="btn-row"><button id="setSt">Guardar fecha</button><button id="stToday">Empezar hoy</button></div>' +
+    '<div class="btn-row"><button id="setSt">Guardar</button></div>' +
     '<h3>Datos</h3><div class="btn-row"><button id="rs">Reiniciar progreso</button></div>' +
     '<div class="warn">Todo se guarda solo en este dispositivo (localStorage). ' +
     'El temario procede de la convocatoria publicada en el BOC nº 7 de 11-I-2023; si la nueva convocatoria ' +
-    'cambia algún tema, habrá que ajustar el plan.</div></div>';
+    'cambia algún tema, habrá que ajustar el contenido.</div></div>';
+
   app.innerHTML = out;
+  document.getElementById("setEx").onclick = function(){
+    S.exam = document.getElementById("ex").value || ""; save(); render();
+  };
+  document.getElementById("clrEx").onclick = function(){ S.exam = ""; save(); render(); };
   document.getElementById("setSt").onclick = function(){
     var v = document.getElementById("st").value;
-    if(v){ S.start = v; save(); alert("Plan recalculado desde el " + fdate(parseISO(v))); render(); }
-  };
-  document.getElementById("stToday").onclick = function(){
-    S.start = iso(today()); save(); alert("Día 1 fijado en hoy, " + fdate(today())); render();
+    if(v){ S.start = v; save(); render(); }
   };
   document.getElementById("rs").onclick = function(){
     if(confirm("¿Borrar el progreso, las estadísticas y el historial?")){
-      S = {start:S.start, done:{}, qs:{}, hist:[]}; save(); render();
+      S = {start:S.start, exam:S.exam, done:{}, qs:{}, hist:[]}; save(); render();
     }
   };
+  bindGo();
 }
 
 /* ---------- router ---------- */
 function render(){
   if(test){ vTest(); return; }
   if(view === "hoy") vHoy();
-  else if(view === "plan") vPlan();
+  else if(view === "ses") vSes();
   else if(view === "test") vTestMenu();
-  else if(view === "stats") vStats();
+  else if(view === "prog") vProg();
   else vTemario();
-  if(view !== "test") window.scrollTo(0,0);
+  if(view !== "test" && view !== "temario") window.scrollTo(0,0);
 }
 load();
 document.getElementById("sub").textContent =
-  "ORL · OPE Servicio Cántabro de Salud · " + D.q.length + " preguntas";
+  "ORL · OPE Servicio Cántabro de Salud · " + D.q.length + " preguntas · " + NSES + " sesiones";
 render();
 })();
 </script>
