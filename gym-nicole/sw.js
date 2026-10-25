@@ -3,7 +3,7 @@
    Sube CACHE_VERSION al publicar cambios para invalidar la caché anterior. */
 
 const CACHE_PREFIX = 'gym-nicole-';
-const CACHE_VERSION = `${CACHE_PREFIX}v1`;
+const CACHE_VERSION = `${CACHE_PREFIX}v2`;
 
 const ASSETS = [
   './',
