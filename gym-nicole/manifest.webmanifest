@@ -1,7 +1,7 @@
 {
   "name": "NICOLEGYM",
   "short_name": "NicoleGym",
-  "description": "Registro de entrenamientos, calendario de sesiones, records y progreso corporal. App personal, offline, sin servidor.",
+  "description": "Registro de entrenamientos con rutinas editables, series con PR, progreso y racha. App personal, offline, sin servidor.",
   "lang": "es",
   "dir": "ltr",
   "start_url": ".",
